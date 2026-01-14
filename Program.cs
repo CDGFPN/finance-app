@@ -1,11 +1,16 @@
+using FinanceApp.Data;
 using FinanceApp.Repositories;
 using FinanceApp.Services;
 using FinanceApp.UI;
 
-var userRepository = new UserRepository();
+// Cria o DbContext (conexão com o banco)
+using var context = new FinanceDbContext();
+
+// Injeta o context nos repositories
+var userRepository = new UserRepository(context);
 var userService = new UserService(userRepository);
 
-var transactionRepository = new TransactionRepository();
+var transactionRepository = new TransactionRepository(context);
 var transactionService = new TransactionService(transactionRepository);
 
 var menu = new Menu(userService, transactionService);

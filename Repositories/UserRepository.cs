@@ -1,102 +1,44 @@
+using FinanceApp.Data;
 using FinanceApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
-        private const string FilePath = "users.txt";
-        private readonly List<User> users = new();
+        private readonly FinanceDbContext context;
 
-        public UserRepository()
+        public UserRepository(FinanceDbContext context)
         {
-            LoadFromFile();
+            this.context = context;
         }
 
         public void Add(User user)
         {
-            bool emailAlreadyExists = users.Any(existingUser =>
-                existingUser.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
-
-            if (emailAlreadyExists)
-            {
-                throw new InvalidOperationException("Já existe um usuário com este email.");
-            }
-
-            users.Add(user);
-            SaveToFile();
+            context.Users.Add(user);
+            context.SaveChanges();
         }
 
         public User? GetById(Guid id)
         {
-            return users.FirstOrDefault(user => user.Id == id);
+            return context.Users.FirstOrDefault(user => user.Id == id);
         }
 
         public User? GetByEmail(string email)
         {
-            return users.FirstOrDefault(user =>
-                user.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            return context.Users.FirstOrDefault(user =>
+                user.Email.ToLower() == email.ToLower());
         }
 
         public List<User> GetAll()
         {
-            return new List<User>(users);
+            return context.Users.ToList();
         }
 
         public void Update(User user)
         {
-            User? existingUser = GetById(user.Id);
-
-            if (existingUser == null)
-            {
-                throw new InvalidOperationException("Usuário não encontrado.");
-            }
-
-            existingUser.Name = user.Name;
-            existingUser.Email = user.Email;
-            existingUser.Password = user.Password;
-
-            SaveToFile();
-        }
-
-        private void LoadFromFile()
-        {
-            if (!File.Exists(FilePath))
-            {
-                return;
-            }
-
-            using var fileReader = new StreamReader(FilePath);
-            string? currentLine;
-
-            while ((currentLine = fileReader.ReadLine()) != null)
-            {
-                string[] userFields = currentLine.Split(';');
-
-                if (userFields.Length < 4)
-                {
-                    continue;
-                }
-
-                var user = new User
-                {
-                    Id = Guid.Parse(userFields[0]),
-                    Name = userFields[1],
-                    Email = userFields[2],
-                    Password = userFields[3]
-                };
-
-                users.Add(user);
-            }
-        }
-
-        private void SaveToFile()
-        {
-            using var fileWriter = new StreamWriter(FilePath, false);
-
-            foreach (var user in users)
-            {
-                fileWriter.WriteLine($"{user.Id};{user.Name};{user.Email};{user.Password}");
-            }
+            context.Users.Update(user);
+            context.SaveChanges();
         }
     }
 }

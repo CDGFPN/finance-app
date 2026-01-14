@@ -6,11 +6,11 @@ namespace FinanceApp.Services
 {
     public class UserService : IUserService
     {
-        private readonly UserRepository userRepository;
+        private readonly IUserRepository userRepository;
 
         public User? CurrentUser { get; private set; }
 
-        public UserService(UserRepository userRepository)
+        public UserService(IUserRepository userRepository)
         {
             this.userRepository = userRepository;
         }

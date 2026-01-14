@@ -1,81 +1,55 @@
-using System.Text.Json;
+using FinanceApp.Data;
 using FinanceApp.Models;
 
 namespace FinanceApp.Repositories
 {
     public class TransactionRepository : ITransactionRepository
     {
-        private const string FilePath = "transactions.json";
-        private List<Transaction> transactions = new();
+        private readonly FinanceDbContext context;
 
-        public TransactionRepository()
+        public TransactionRepository(FinanceDbContext context)
         {
-            LoadFromFile();
+            this.context = context;
         }
 
         public void Save(Transaction transaction)
         {
-            transactions.Add(transaction);
-            SaveToFile();
+            context.Transactions.Add(transaction);
+            context.SaveChanges();
         }
 
         public List<Transaction> GetAll()
         {
-            return new List<Transaction>(transactions);
+            return context.Transactions.ToList();
         }
 
         public Transaction? GetById(Guid id)
         {
-            return transactions.FirstOrDefault(transaction => transaction.Id == id);
+            return context.Transactions.FirstOrDefault(transaction => transaction.Id == id);
         }
 
         public List<Transaction> GetByUserId(Guid userId)
         {
-            return transactions
+            return context.Transactions
                 .Where(transaction => transaction.UserId == userId)
                 .ToList();
         }
 
         public void Update(Transaction transaction)
         {
-            int transactionIndex = transactions.FindIndex(t => t.Id == transaction.Id);
-
-            if (transactionIndex != -1)
-            {
-                transactions[transactionIndex] = transaction;
-            }
-
-            SaveToFile();
+            context.Transactions.Update(transaction);
+            context.SaveChanges();
         }
 
         public void Delete(Guid id)
         {
-            int transactionIndex = transactions.FindIndex(transaction => transaction.Id == id);
+            Transaction? transaction = GetById(id);
 
-            if (transactionIndex != -1)
+            if (transaction != null)
             {
-                transactions.RemoveAt(transactionIndex);
+                context.Transactions.Remove(transaction);
+                context.SaveChanges();
             }
-
-            SaveToFile();
-        }
-
-        private void LoadFromFile()
-        {
-            if (!File.Exists(FilePath))
-            {
-                return;
-            }
-
-            string jsonContent = File.ReadAllText(FilePath);
-            transactions = JsonSerializer.Deserialize<List<Transaction>>(jsonContent) ?? new();
-        }
-
-        private void SaveToFile()
-        {
-            var serializerOptions = new JsonSerializerOptions { WriteIndented = true };
-            string jsonContent = JsonSerializer.Serialize(transactions, serializerOptions);
-            File.WriteAllText(FilePath, jsonContent);
         }
     }
 }

@@ -1,0 +1,20 @@
+# Build outputs 
+bin/
+obj/
+
+# User-specific files 
+*.suo
+
+# IDE settings 
+.vs/
+.vscode/
+.idea/
+
+# Sensitive data 
+users.txt
+transactions.json
+CLAUDE.md
+
+# Tool-specific
+.claude/
+.qodo/

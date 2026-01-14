@@ -6,6 +6,8 @@ Aplicativo de gerenciamento de finanças pessoais desenvolvido em C# e .NET 8 co
 
 - **Runtime:** .NET 8
 - **Linguagem:** C# 12
+- **Banco de Dados:** SQL Server 2022 (Docker)
+- **ORM:** Entity Framework Core 8
 - **Segurança:** BCrypt para hash de senhas
 - **Arquitetura:** Clean Architecture com Repository Pattern
 
@@ -41,15 +43,22 @@ Aplicativo de gerenciamento de finanças pessoais desenvolvido em C# e .NET 8 co
 ```
 FinanceApp/
 ├── Models/              # Entidades do domínio
-│   ├── User.cs          # Usuário: Id, Name, Email, Password
-│   ├── Transaction.cs   # Transação: Value, Date, Description, Type
+│   ├── User.cs          # Usuário com Data Annotations
+│   ├── Transaction.cs   # Transação com validações
 │   ├── Category.cs      # Enum com atributos customizados
 │   └── TransactionType.cs
 │
+├── Data/                # Camada de dados (EF Core)
+│   └── FinanceDbContext.cs  # DbContext com Fluent API
+│
+├── Migrations/          # Versionamento do banco
+│   └── *_InitialCreate.cs
+│
 ├── Repositories/        # Camada de acesso a dados
+│   ├── IUserRepository.cs
 │   ├── ITransactionRepository.cs
-│   ├── TransactionRepository.cs
-│   └── UserRepository.cs
+│   ├── UserRepository.cs
+│   └── TransactionRepository.cs
 │
 ├── Services/            # Camada de regras de negócio
 │   ├── IUserService.cs
@@ -63,7 +72,7 @@ FinanceApp/
 ├── Attributes/          # Atributos customizados
 │   └── TransactionTypeAttribute.cs
 │
-└── Program.cs           # Ponto de entrada
+└── Program.cs           # Ponto de entrada com DI
 ```
 
 ### Padrões de Projeto Utilizados
@@ -79,18 +88,26 @@ FinanceApp/
 
 ### Pré-requisitos
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Docker](https://www.docker.com/) (para SQL Server)
 
 ### Instalação
 
 ```bash
 # Clonar o repositório
-git clone https://github.com/SEU_USUARIO/finance-app.git
+git clone https://github.com/CDGFPN/finance-app.git
 
 # Navegar até o diretório
 cd finance-app
 
+# Subir o SQL Server via Docker
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=FinanceApp@2026" \
+  -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
+
 # Restaurar dependências
 dotnet restore
+
+# Aplicar migrations (criar banco e tabelas)
+dotnet dotnet-ef database update
 
 # Executar a aplicação
 dotnet run
@@ -109,15 +126,17 @@ Este projeto faz parte da minha jornada para me tornar um desenvolvedor .NET.
 - [x] Atributos customizados com Reflection
 - [x] Consultas LINQ
 - [x] Git workflow com commits semânticos
+- [x] Integração com banco de dados (SQL Server + Entity Framework Core)
+- [x] Migrations e versionamento de banco
+- [x] Data Annotations para validação de modelos
 
 ### Em Progresso
-- [ ] Integração com banco de dados (SQL Server + Entity Framework Core)
-- [ ] Padrões async/await
-- [ ] Testes unitários
-
-### Planejado
 - [ ] API REST com ASP.NET Core
 - [ ] Frontend com HTML/CSS/JavaScript
+
+### Planejado
+- [ ] Padrões async/await
+- [ ] Testes unitários
 - [ ] Containerização com Docker
 
 ## Conceitos de C# Demonstrados

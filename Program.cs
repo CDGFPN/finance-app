@@ -1,43 +1,40 @@
 using FinanceApp.Data;
 using FinanceApp.Repositories;
 using FinanceApp.Services;
-using FinanceApp.UI;
+using Microsoft.EntityFrameworkCore;
 
-// Cria o DbContext (conexão com o banco)
-using var context = new FinanceDbContext();
+var builder = WebApplication.CreateBuilder(args);
 
-// Injeta o context nos repositories
-var userRepository = new UserRepository(context);
-var userService = new UserService(userRepository);
+// === DEPENDENCY INJECTION ===
+// Registra o DbContext (Scoped = uma instância por request HTTP)
+builder.Services.AddDbContext<FinanceDbContext>();
 
-var transactionRepository = new TransactionRepository(context);
-var transactionService = new TransactionService(transactionRepository);
+// Registra Repositories (Scoped = uma instância por request)
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
-var menu = new Menu(userService, transactionService);
+// Registra Services
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
-bool applicationIsRunning = true;
+// Adiciona suporte a Controllers
+builder.Services.AddControllers();
 
-while (applicationIsRunning)
+// Adiciona Swagger (documentação da API)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// === MIDDLEWARE PIPELINE ===
+// Swagger só em desenvolvimento
+if (app.Environment.IsDevelopment())
 {
-    Console.Clear();
-    menu.ShowMenu();
-
-    string? userInput = Console.ReadLine();
-
-    if (int.TryParse(userInput, out int userChoice))
-    {
-        applicationIsRunning = menu.HandleUserInput(userChoice);
-    }
-    else
-    {
-        Console.WriteLine("Entrada inválida.");
-    }
-
-    if (applicationIsRunning)
-    {
-        Console.WriteLine("\nPressione Enter para continuar...");
-        Console.ReadLine();
-    }
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-Console.WriteLine("Aplicação encerrada.");
+// Mapeia os controllers para rotas
+app.MapControllers();
+
+app.Run();

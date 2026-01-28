@@ -1,20 +1,75 @@
-# Build outputs 
+# .NET
 bin/
 obj/
-
-# User-specific files 
+*.user
+*.userosscache
 *.suo
-
-# IDE settings 
+*.cache
 .vs/
-.vscode/
-.idea/
+*.DotSettings.user
 
-# Sensitive data 
-users.txt
-transactions.json
-CLAUDE.md
+# ASP.NET Core
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json
+
+# Entity Framework
+*.db
+*.db-shm
+*.db-wal
+
+# Angular
+node_modules/
+dist/
+.angular/
+.sass-cache/
+*.css.map
+*.js.map
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test results
+TestResults/
+coverage/
+
+# Docker
+.docker/
+
+# Uploads
+uploads/
+!uploads/.gitkeep
+
+# Misc
+*.bak
+*.tmp
 
 # Tool-specific
+CLAUDE.md
 .claude/
 .qodo/
+
+# Legacy data files
+users.txt
+transactions.json
